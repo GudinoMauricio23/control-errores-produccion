@@ -1,7 +1,7 @@
-const path = require('path');
+/**const path = require('path');
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+
+/**const nextConfig = {
   distDir: process.env.NEXT_DIST_DIR || '.next',
   output: process.env.NEXT_OUTPUT_MODE,
   productionBrowserSourceMaps: false,
@@ -22,6 +22,20 @@ const nextConfig = {
     }
     return config;
   },
+};
+
+module.exports = nextConfig;*/
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  productionBrowserSourceMaps: false,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  images: { unoptimized: true },
 };
 
 module.exports = nextConfig;
