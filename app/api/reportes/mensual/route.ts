@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+/*export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
@@ -56,6 +56,90 @@ export async function GET(req: NextRequest) {
       horaCritica: getHoraCriticaPorFranja(entry.erroresHora),
     };
   }).sort((a, b) => a.mes - b.mes || a.nombre.localeCompare(b.nombre));
+
+  return NextResponse.json(mensual);
+}
+*/
+export const dynamic = 'force-dynamic';
+
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth-options';
+import { prisma } from '@/lib/prisma';
+import { getHoraCriticaPorFranja } from '@/lib/calculations';
+
+export async function GET(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+
+  const url = new URL(req.url);
+  const anio = parseInt(url.searchParams.get('anio') ?? String(new Date().getFullYear()));
+
+  const where: any = { anio };
+
+  const generadas = await prisma.errorRecord.groupBy({
+    by: ['mes', 'nombre'],
+    where,
+    _count: { id: true },
+    orderBy: [
+      { mes: 'asc' },
+      { nombre: 'asc' },
+    ],
+  });
+
+  const errores = await prisma.errorRecord.groupBy({
+    by: ['mes', 'nombre'],
+    where: {
+      ...where,
+      eliminacion: 1,
+    },
+    _count: { id: true },
+  });
+
+  const horasError = await prisma.errorRecord.findMany({
+    where: {
+      ...where,
+      eliminacion: 1,
+    },
+    select: {
+      mes: true,
+      nombre: true,
+      horaDecimal: true,
+      eliminacion: true,
+    },
+  });
+
+  const erroresMap = new Map(
+    errores.map((e) => [`${e.mes}|${e.nombre}`, e._count.id])
+  );
+
+  const horasMap = new Map<string, Array<{ horaDecimal: number; eliminacion: number }>>();
+
+  for (const h of horasError) {
+    const key = `${h.mes}|${h.nombre}`;
+    if (!horasMap.has(key)) horasMap.set(key, []);
+    horasMap.get(key)!.push({
+      horaDecimal: h.horaDecimal,
+      eliminacion: h.eliminacion,
+    });
+  }
+
+  const mensual = generadas.map((g) => {
+    const total = g._count.id;
+    const erroresTotal = erroresMap.get(`${g.mes}|${g.nombre}`) ?? 0;
+    const correctas = total - erroresTotal;
+
+    return {
+      mes: g.mes,
+      nombre: g.nombre,
+      errores: erroresTotal,
+      etiquetasGeneradas: total,
+      etiquetasCorrectas: correctas,
+      porcentajeError: total > 0 ? Number(((erroresTotal / total) * 100).toFixed(2)) : 0,
+      porcentajeEfectividad: total > 0 ? Number(((correctas / total) * 100).toFixed(2)) : 0,
+      horaCritica: getHoraCriticaPorFranja(horasMap.get(`${g.mes}|${g.nombre}`) ?? []),
+    };
+  });
 
   return NextResponse.json(mensual);
 }
