@@ -11,7 +11,8 @@ const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-displa
 const jetbrains = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono', display: 'swap' });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXTAUTH_URL || 'http://localhost:3000'),
+  //metadataBase: new URL(process.env.NEXTAUTH_URL || 'http://localhost:3000'),
+  metadataBase: new URL('https://control-errores-produccion.vercel.app'),
   title: 'Control de Errores de Producción',
   description: 'Sistema de gestión y control de errores de producción - Monitoreo de etiquetas',
   icons: { icon: '/favicon.svg', shortcut: '/favicon.svg' },
