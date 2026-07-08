@@ -107,10 +107,14 @@ export function extractAnio(fechaHora: Date | string): number {
 export function calcularSemana(fecha: Date | string): number {
   const p = getDateTimePartsMX(fecha);
 
-  if (p.day >= 1 && p.day <= 7) return 1;
-  if (p.day >= 8 && p.day <= 14) return 2;
-  if (p.day >= 15 && p.day <= 21) return 3;
-  if (p.day >= 22 && p.day <= 28) return 4;
+  const dia = Number(p.day);
+
+  if (!dia || dia < 1) return 1;
+
+  if (dia <= 7) return 1;
+  if (dia <= 14) return 2;
+  if (dia <= 21) return 3;
+  if (dia <= 28) return 4;
 
   return 5;
 }
