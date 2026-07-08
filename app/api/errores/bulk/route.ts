@@ -47,7 +47,11 @@ export async function POST(req: NextRequest) {
       }).filter(Boolean);
 
       if (dataToCreate.length > 0) {
-        const result = await prisma.errorRecord.createMany({ data: dataToCreate as any });
+        //const result = await prisma.errorRecord.createMany({ data: dataToCreate as any });
+        const result = await prisma.errorRecord.createMany({
+  data: dataToCreate as any,
+  skipDuplicates: true,
+});
         created += result.count;
       }
     }

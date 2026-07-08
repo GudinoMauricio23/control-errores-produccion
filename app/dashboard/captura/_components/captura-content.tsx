@@ -325,7 +325,14 @@ const juntarFechaHora = (fecha: any, hora: any) => {
       });
 
       const data = await res.json();
-      totalCreated += data?.created ?? 0;
+
+if (!res.ok) {
+  console.error("Error API import:", data);
+  toast.error(data?.error || "Error al guardar en base de datos");
+  return;
+}
+
+totalCreated += data?.created ?? 0;
     }
 
     toast.success(`Se importaron ${totalCreated} registros de ${records.length}`);
