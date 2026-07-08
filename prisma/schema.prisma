@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(cuid())
+  name         String?
+  email        String        @unique
+  password     String
+  role         String        @default("user")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  errorRecords ErrorRecord[]
+}
+
+model ErrorRecord {
+  id             String   @id @default(cuid())
+  noNomina       Int
+  nombre         String
+  etiqueta       String
+  fechaHora      DateTime
+  lote           String
+  codigoMaterial String
+  materialNombre String
+  cantidad       Float
+  dueno          String
+  eliminacion    Int      @default(0) // 0=correcta, 1=error
+  // Campos calculados
+  fecha          DateTime // Solo fecha (sin hora)
+  hora           String // HH:mm:ss
+  horaDecimal    Float // 0-1 representando hora del día
+  mes            Int // Número de mes
+  anio           Int // Año
+  semana         Int // Número de semana del mes
+  createdAt      DateTime @default(now())
+  createdById    String?
+  createdBy      User?    @relation(fields: [createdById], references: [id])
+
+  @@index([nombre, fecha])
+  @@index([fecha])
+  @@index([eliminacion])
+  @@index([nombre, fecha, eliminacion, horaDecimal])
+  @@index([mes, anio])
+}
+
+model CorrectionRecord {
+  id              String   @id @default(cuid())
+  fecha           DateTime @default(now())
+  etiquetaErronea String
+  producto        String
+  peso            Float
+  lote            String
+  quienLoRealizo  String
+  motivo          String
+  etiquetaNueva   String
+  productoNuevo   String
+  pesoNuevo       Float
+  diferencia      Float
+  createdAt       DateTime @default(now())
+
+  @@index([etiquetaErronea])
+  @@index([etiquetaNueva])
+  @@index([quienLoRealizo])
+  @@index([lote])
+}
