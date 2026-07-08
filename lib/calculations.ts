@@ -106,15 +106,12 @@ export function extractAnio(fechaHora: Date | string): number {
 // Semana del mes igual al Excel usado: días 1-7=S1, 8-14=S2, etc.
 export function calcularSemana(fecha: Date | string): number {
   const p = getDateTimePartsMX(fecha);
-
   const dia = Number(p.day);
 
-  if (!dia || dia < 1) return 1;
-
-  if (dia <= 7) return 1;
-  if (dia <= 14) return 2;
-  if (dia <= 21) return 3;
-  if (dia <= 28) return 4;
+  if (dia >= 1 && dia <= 7) return 1;
+  if (dia >= 8 && dia <= 12) return 2;
+  if (dia >= 13 && dia <= 19) return 3;
+  if (dia >= 20 && dia <= 26) return 4;
 
   return 5;
 }
