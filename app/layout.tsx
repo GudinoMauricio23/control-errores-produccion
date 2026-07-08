@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://control-errores-produccion.vercel.app"),
   title: "Control de Errores de Producción",
   description: "Sistema de gestión y control de errores de producción - Monitoreo de etiquetas",
-  icons: { icon: "/favicon.svg', shortcut: '/favicon.svg" },
+  icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
   openGraph: { images: ["/og-image.png"] },
 };
 
