@@ -27,14 +27,27 @@ export default function MensualContent() {
   const [loading, setLoading] = useState(true);
   const [anio, setAnio] = useState(new Date().getFullYear());
 
-  useEffect(() => {
-    setLoading(true);
-    fetch(`/api/reportes/mensual?anio=${anio}`)
-      .then((r) => r.json())
-      .then((d) => setData(d ?? []))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [anio]);
+useEffect(() => {
+  setLoading(true);
+
+  fetch(`/api/reportes/mensual?anio=${anio}`)
+    .then(async (r) => {
+      const text = await r.text();
+      console.log("RESPUESTA MENSUAL:", text);
+
+      if (!r.ok) {
+        throw new Error(text);
+      }
+
+      return JSON.parse(text);
+    })
+    .then((d) => setData(Array.isArray(d) ? d : []))
+    .catch((err) => {
+      console.error("ERROR MENSUAL:", err);
+      setData([]);
+    })
+    .finally(() => setLoading(false));
+}, [anio]);
 
   return (
     <div className="p-6 lg:p-8 space-y-6">
