@@ -74,7 +74,7 @@ export default function MensualContent() {
           </CardHeader>
           <CardContent>
             <div className="h-72">
-              <pre className="text-xs overflow-auto">{JSON.stringify(data, null, 2)}</pre>
+              <MensualChart data={data ?? []} />
             </div>
           </CardContent>
         </Card>
