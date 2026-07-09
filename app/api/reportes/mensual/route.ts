@@ -130,15 +130,26 @@ export async function GET(req: NextRequest) {
     const correctas = total - erroresTotal;
 
     return {
-      mes: g.mes,
-      nombre: g.nombre,
-      errores: erroresTotal,
-      etiquetasGeneradas: total,
-      etiquetasCorrectas: correctas,
-      porcentajeError: total > 0 ? Number(((erroresTotal / total) * 100).toFixed(2)) : 0,
-      porcentajeEfectividad: total > 0 ? Number(((correctas / total) * 100).toFixed(2)) : 0,
-      horaCritica: getHoraCriticaPorFranja(horasMap.get(`${g.mes}|${g.nombre}`) ?? []),
-    };
+  mes: g.mes,
+
+  nombre: g.nombre,
+  usuario: g.nombre,
+
+  errores: erroresTotal,
+
+  etiquetasGeneradas: total,
+  generadas: total,
+
+  etiquetasCorrectas: correctas,
+  correctas: correctas,
+
+  porcentajeError: total > 0 ? Number(((erroresTotal / total) * 100).toFixed(2)) : 0,
+  porcentajeEfectividad: total > 0 ? Number(((correctas / total) * 100).toFixed(2)) : 0,
+
+  efectividad: total > 0 ? Number(((correctas / total) * 100).toFixed(2)) : 0,
+
+  horaCritica: getHoraCriticaPorFranja(horasMap.get(`${g.mes}|${g.nombre}`) ?? []),
+};
   });
 
   return NextResponse.json(mensual);
