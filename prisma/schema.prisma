@@ -68,26 +68,27 @@ model CorrectionRecord {
   @@index([quienLoRealizo])
   @@index([lote])
 }
+
 model SapiAccess {
-  id                    String   @id @default(cuid())
-  personalId            Int?
-  noNomina              Int
-  nombreCompleto        String
-  departamento          String?
-  usuarioSapi           String   @unique
-  passwordCifrado       String?
-  nipCifrado            String?
-  accesoAdministrativo  Boolean  @default(false)
-  accesoProduccion      Boolean  @default(false)
-  accesoWeb             Boolean  @default(false)
-  activo                Boolean  @default(true)
-  fechaEntrega          DateTime @default(now())
-  fechaBaja             DateTime?
-  observaciones         String?
-  responsivaGenerada    Boolean  @default(false)
-  responsivaFirmada     Boolean  @default(false)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  id                   String    @id @default(cuid())
+  personalId           Int?
+  noNomina             Int
+  nombreCompleto       String
+  departamento         String?
+  usuarioSapi          String    @unique
+  passwordCifrado      String?
+  nipCifrado           String?
+  accesoAdministrativo Boolean   @default(false)
+  accesoProduccion     Boolean   @default(false)
+  accesoWeb            Boolean   @default(false)
+  activo               Boolean   @default(true)
+  fechaEntrega         DateTime  @default(now())
+  fechaBaja            DateTime?
+  observaciones        String?
+  responsivaGenerada   Boolean   @default(false)
+  responsivaFirmada    Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
   movimientos SapiAccessHistory[]
 
@@ -105,11 +106,7 @@ model SapiAccessHistory {
   realizadoPor   String?
   fecha          DateTime @default(now())
 
-  sapiAccess SapiAccess @relation(
-    fields: [sapiAccessId],
-    references: [id],
-    onDelete: Cascade
-  )
+  sapiAccess SapiAccess @relation(fields: [sapiAccessId], references: [id], onDelete: Cascade)
 
   @@index([sapiAccessId])
   @@index([fecha])
