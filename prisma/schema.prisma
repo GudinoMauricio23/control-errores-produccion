@@ -70,31 +70,41 @@ model CorrectionRecord {
 }
 
 model SapiAccess {
-  id                   String    @id @default(cuid())
-  personalId           Int?
-  noNomina             Int
-  nombreCompleto       String
-  departamento         String?
-  usuarioSapi          String    @unique
-  passwordCifrado      String?
-  nipCifrado           String?
-  accesoAdministrativo Boolean   @default(false)
-  accesoProduccion     Boolean   @default(false)
-  accesoWeb            Boolean   @default(false)
-  activo               Boolean   @default(true)
-  fechaEntrega         DateTime  @default(now())
-  fechaBaja            DateTime?
-  observaciones        String?
-  responsivaGenerada   Boolean   @default(false)
-  responsivaFirmada    Boolean   @default(false)
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  id String @id @default(cuid())
+
+  usuarioIdSapi  Int?    @unique
+  personalId     Int?
+  noNomina       Int
+  nombreCompleto String
+  departamento   String?
+
+  userName        String  @unique
+  passwordCifrado String?
+  nipCifrado      String?
+
+  accesoTotal     Boolean @default(false)
+  noPerfil        Int?
+  estaActivo      Boolean @default(true)
+  inicioEmpresaId Int?
+  estaActivoProd  Boolean @default(false)
+  accesoWeb       Boolean @default(false)
+
+  fechaEntrega  DateTime  @default(now())
+  fechaBaja     DateTime?
+  observaciones String?
+
+  responsivaGenerada Boolean @default(false)
+  responsivaFirmada  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   movimientos SapiAccessHistory[]
 
   @@index([noNomina])
   @@index([nombreCompleto])
-  @@index([activo])
+  @@index([personalId])
+  @@index([estaActivo])
   @@index([fechaEntrega])
 }
 
