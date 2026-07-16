@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { requireSapiAdmin } from '@/lib/sapi-auth';
 import { decryptSecret, encryptSecret } from '@/lib/sapi-crypto';
 

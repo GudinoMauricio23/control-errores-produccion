@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { requireSapiAdmin } from '@/lib/sapi-auth';
 
 export const runtime = 'nodejs';

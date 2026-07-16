@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import * as XLSX from 'xlsx';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { requireSapiAdmin } from '@/lib/sapi-auth';
 import { encryptSecret } from '@/lib/sapi-crypto';
 
