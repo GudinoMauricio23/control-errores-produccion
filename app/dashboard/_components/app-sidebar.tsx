@@ -18,6 +18,7 @@ import {
   ChevronDown,
   User,
   FileCheck,
+  KeyRound,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -30,6 +31,7 @@ const navItems = [
   { href: '/dashboard/semanal', label: 'Reporte Semanal', icon: BarChart3 },
   { href: '/dashboard/mensual', label: 'Reporte Mensual', icon: Calendar },
   { href: '/dashboard/correcciones', label: 'Correcciones', icon: FileCheck },
+  { href: '/dashboard/accesos-sapi', label: 'Control de accesos SAPI', icon: KeyRound },
 ];
 
 export default function AppSidebar() {
