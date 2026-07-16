@@ -78,16 +78,32 @@ model SapiAccess {
   nombreCompleto String
   departamento   String?
 
-  userName        String  @unique
-  passwordCifrado String?
-  nipCifrado      String?
+  // Administrativo
+  usuarioAdministrativo         String?
+  passwordAdministrativoCifrado String?
 
-  accesoTotal     Boolean @default(false)
+  // Producción
+  usuarioProduccion         String?
+  passwordProduccionCifrado String?
+
+  // Web
+  usuarioWeb         String?
+  passwordWebCifrado String?
+
+  // NIP
+  nipCifrado String?
+
+  // Accesos
+  accesoAdministrativo Boolean @default(false)
+  accesoProduccion     Boolean @default(false)
+  accesoWeb            Boolean @default(false)
+
+  // Estado
+  activo Boolean @default(true)
+
+  // Datos adicionales
   noPerfil        Int?
-  estaActivo      Boolean @default(true)
   inicioEmpresaId Int?
-  estaActivoProd  Boolean @default(false)
-  accesoWeb       Boolean @default(false)
 
   fechaEntrega  DateTime  @default(now())
   fechaBaja     DateTime?
@@ -104,7 +120,7 @@ model SapiAccess {
   @@index([noNomina])
   @@index([nombreCompleto])
   @@index([personalId])
-  @@index([estaActivo])
+  @@index([activo])
   @@index([fechaEntrega])
 }
 
