@@ -1,194 +1,3 @@
-/*import { NextRequest, NextResponse } from 'next/server';
-import { Prisma } from '@prisma/client';
-import * as XLSX from 'xlsx';
-import { prisma } from '@/lib/prisma';
-import { requireSapiAdmin } from '@/lib/sapi-auth';
-import { encryptSecret } from '@/lib/sapi-crypto';
-
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
-
-function normalize(value: unknown): string {
-  return String(value ?? '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '');
-}
-
-function getValue(row: Record<string, unknown>, aliases: string[]) {
-  const normalizedAliases = aliases.map(normalize);
-  const entry = Object.entries(row).find(([key]) =>
-    normalizedAliases.includes(normalize(key))
-  );
-  return entry?.[1];
-}
-
-function asBoolean(value: unknown): boolean {
-  const text = normalize(value);
-  return ['1', 'si', 'sí', 'true', 'x', 'activo', 'yes'].includes(text);
-}
-
-function excelDate(value: unknown): Date {
-  if (value instanceof Date) return value;
-
-  if (typeof value === 'number') {
-    const parsed = XLSX.SSF.parse_date_code(value);
-    if (parsed) return new Date(parsed.y, parsed.m - 1, parsed.d);
-  }
-
-  const date = new Date(String(value || ''));
-  return Number.isNaN(date.getTime()) ? new Date() : date;
-}
-
-export async function POST(request: NextRequest) {
-  const auth = await requireSapiAdmin();
-  if (!auth.authorized) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
-  }
-
-  try {
-    const formData = await request.formData();
-    const file = formData.get('file');
-
-    if (!(file instanceof File)) {
-      return NextResponse.json(
-        { error: 'Selecciona un archivo de Excel.' },
-        { status: 400 }
-      );
-    }
-
-    const bytes = await file.arrayBuffer();
-    const workbook = XLSX.read(bytes, { type: 'array', cellDates: true });
-    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(firstSheet, {
-      defval: '',
-    });
-
-    let creados = 0;
-    let actualizados = 0;
-    const errores: string[] = [];
-
-    for (let index = 0; index < rows.length; index++) {
-      const row = rows[index];
-
-      const noNomina = Number(
-        getValue(row, [
-          'No Nomina',
-          'Nómina',
-          'Nomina',
-          'Numero Nomina',
-          'NoNomina',
-        ])
-      );
-
-      const nombreCompleto = String(
-        getValue(row, ['Nombre', 'Nombre Completo', 'Empleado']) || ''
-      ).trim();
-
-      const usuarioSapi = String(
-        getValue(row, ['Usuario SAPI', 'Usuario', 'User SAPI']) || ''
-      ).trim();
-
-      if (!Number.isInteger(noNomina) || !nombreCompleto || !usuarioSapi) {
-        errores.push(
-          `Fila ${index + 2}: faltan nómina, nombre completo o usuario SAPI.`
-        );
-        continue;
-      }
-
-      const data = {
-        noNomina,
-        nombreCompleto,
-        departamento:
-          String(getValue(row, ['Departamento', 'Area', 'Área']) || '').trim() ||
-          null,
-        passwordCifrado: encryptSecret(
-          String(getValue(row, ['Password', 'Contraseña', 'Contrasena']) || '')
-        ),
-        nipCifrado: encryptSecret(String(getValue(row, ['NIP', 'Pin']) || '')),
-        accesoAdministrativo: asBoolean(
-          getValue(row, ['Administrativo', 'Acceso Administrativo'])
-        ),
-        accesoProduccion: asBoolean(
-          getValue(row, ['Produccion', 'Producción', 'Acceso Produccion'])
-        ),
-        accesoWeb: asBoolean(getValue(row, ['Web', 'Acceso Web'])),
-        activo:
-          getValue(row, ['Activo', 'Estado']) === ''
-            ? true
-            : asBoolean(getValue(row, ['Activo', 'Estado'])),
-        fechaEntrega: excelDate(
-          getValue(row, ['Fecha Entrega', 'Fecha de Entrega', 'Fecha'])
-        ),
-        observaciones:
-          String(getValue(row, ['Observaciones', 'Notas']) || '').trim() || null,
-      };
-
-      const existing = await prisma.sapiAccess.findUnique({
-        where: { usuarioSapi },
-        select: { id: true },
-      });
-
-      if (existing) {
-        await prisma.sapiAccess.update({
-          where: { id: existing.id },
-          data: {
-            ...data,
-            movimientos: {
-              create: {
-                tipoMovimiento: 'IMPORTACIÓN',
-                descripcion: 'Registro actualizado mediante Excel.',
-                realizadoPor: auth.actor,
-              },
-            },
-          },
-        });
-        actualizados++;
-      } else {
-        await prisma.sapiAccess.create({
-          data: {
-            ...data,
-            usuarioSapi,
-            movimientos: {
-              create: {
-                tipoMovimiento: 'IMPORTACIÓN',
-                descripcion: 'Registro creado mediante Excel.',
-                realizadoPor: auth.actor,
-              },
-            },
-          },
-        });
-        creados++;
-      }
-    }
-
-    return NextResponse.json({
-      message: 'Importación terminada.',
-      totalFilas: rows.length,
-      creados,
-      actualizados,
-      errores: errores.slice(0, 50),
-      totalErrores: errores.length,
-    });
-  } catch (error) {
-    console.error('POST /api/accesos-sapi/import:', error);
-
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      return NextResponse.json(
-        { error: `Error de base de datos: ${error.code}` },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: 'No fue posible importar el archivo.' },
-      { status: 500 }
-    );
-  }
-}
-*/
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import * as XLSX from 'xlsx';
@@ -213,10 +22,10 @@ function getValue(
   row: Record<string, unknown>,
   aliases: string[]
 ): unknown {
-  const aliasesNormalizados = aliases.map(normalize);
+  const normalizedAliases = aliases.map(normalize);
 
   const entry = Object.entries(row).find(([key]) =>
-    aliasesNormalizados.includes(normalize(key))
+    normalizedAliases.includes(normalize(key))
   );
 
   return entry?.[1];
@@ -293,17 +102,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    /*
-     * range: 1 omite la primera fila.
-     *
-     * Tu archivo tiene:
-     * fila 1: encabezados originales
-     * fila 2: encabezados repetidos
-     * fila 3: primer usuario
-     *
-     * Con range: 1 se utiliza la fila 2 como encabezado
-     * y los datos comienzan en la fila 3.
-     */
     const rows =
       XLSX.utils.sheet_to_json<Record<string, unknown>>(
         sheet,
@@ -328,7 +126,7 @@ export async function POST(request: NextRequest) {
         getValue(row, ['UsuarioID'])
       );
 
-      const userName = String(
+      const usuarioExcel = String(
         getValue(row, [
           'UserName',
           'Usuario',
@@ -336,7 +134,7 @@ export async function POST(request: NextRequest) {
         ]) ?? ''
       ).trim();
 
-      const passwordSapi = String(
+      const passwordExcel = String(
         getValue(row, [
           'Password',
           'Contraseña',
@@ -367,21 +165,47 @@ export async function POST(request: NextRequest) {
         ]) ?? ''
       ).trim();
 
-      const accesoTotal = toBoolean(
-        getValue(row, ['AccesoTotal'])
+      const accesoAdministrativo = toBoolean(
+        getValue(row, [
+          'AccesoTotal',
+          'Acceso Administrativo',
+          'Administrativo',
+        ])
       );
 
-      const noPerfil = optionalNumber(
-        getValue(row, ['NoPerfil'])
+      const accesoProduccion = toBoolean(
+        getValue(row, [
+          'EstaActivoProd',
+          'Acceso Produccion',
+          'Acceso Producción',
+          'Produccion',
+          'Producción',
+        ])
       );
 
-      const estaActivo = toBoolean(
-        getValue(row, ['EstaActivo'])
+      const accesoWeb = toBoolean(
+        getValue(row, [
+          'AccesoWeb',
+          'Acceso Web',
+          'Web',
+        ])
+      );
+
+      const activo = toBoolean(
+        getValue(row, [
+          'EstaActivo',
+          'Activo',
+          'Estado',
+        ])
       );
 
       const nip = String(
         getValue(row, ['NIP']) ?? ''
       ).trim();
+
+      const noPerfil = optionalNumber(
+        getValue(row, ['NoPerfil'])
+      );
 
       const inicioEmpresaId = optionalNumber(
         getValue(row, [
@@ -390,49 +214,121 @@ export async function POST(request: NextRequest) {
         ])
       );
 
-      const estaActivoProd = toBoolean(
-        getValue(row, ['EstaActivoProd'])
-      );
-
-      const accesoWeb = toBoolean(
-        getValue(row, ['AccesoWeb'])
-      );
-
-      if (!userName || !nombreCompleto || noNomina === null) {
+      if (
+        !usuarioExcel ||
+        !nombreCompleto ||
+        noNomina === null
+      ) {
         omitidos++;
 
         errores.push(
-          `Fila ${excelRow}: faltan UserName, nombre completo o nómina.`
+          `Fila ${excelRow}: faltan usuario, nombre completo o nómina.`
         );
 
         continue;
       }
 
+      if (
+        !accesoAdministrativo &&
+        !accesoProduccion &&
+        !accesoWeb
+      ) {
+        omitidos++;
+
+        errores.push(
+          `Fila ${excelRow}: el usuario no tiene acceso Administrativo, Producción ni Web.`
+        );
+
+        continue;
+      }
+
+      /*
+       * El Excel solamente trae un UserName y un Password.
+       * Se asignan al acceso marcado en cada columna.
+       */
       const data = {
         usuarioIdSapi,
         personalId,
         noNomina,
         nombreCompleto,
-        passwordCifrado: encryptSecret(passwordSapi),
-        nipCifrado: encryptSecret(nip),
-        accesoTotal,
-        noPerfil,
-        estaActivo,
-        inicioEmpresaId,
-        estaActivoProd,
+
+        usuarioAdministrativo:
+          accesoAdministrativo
+            ? usuarioExcel
+            : null,
+
+        passwordAdministrativoCifrado:
+          accesoAdministrativo
+            ? encryptSecret(passwordExcel)
+            : null,
+
+        usuarioProduccion:
+          accesoProduccion
+            ? usuarioExcel
+            : null,
+
+        passwordProduccionCifrado:
+          accesoProduccion
+            ? encryptSecret(passwordExcel)
+            : null,
+
+        usuarioWeb:
+          accesoWeb
+            ? usuarioExcel
+            : null,
+
+        passwordWebCifrado:
+          accesoWeb
+            ? encryptSecret(passwordExcel)
+            : null,
+
+        nipCifrado:
+          encryptSecret(nip),
+
+        accesoAdministrativo,
+        accesoProduccion,
         accesoWeb,
+
+        activo,
+        noPerfil,
+        inicioEmpresaId,
         fechaEntrega: new Date(),
       };
+
+      const conditions: Prisma.SapiAccessWhereInput[] = [];
+
+      if (usuarioIdSapi !== null) {
+        conditions.push({
+          usuarioIdSapi,
+        });
+      }
+
+      conditions.push({
+        noNomina,
+      });
+
+      if (accesoAdministrativo) {
+        conditions.push({
+          usuarioAdministrativo: usuarioExcel,
+        });
+      }
+
+      if (accesoProduccion) {
+        conditions.push({
+          usuarioProduccion: usuarioExcel,
+        });
+      }
+
+      if (accesoWeb) {
+        conditions.push({
+          usuarioWeb: usuarioExcel,
+        });
+      }
 
       const existing =
         await prisma.sapiAccess.findFirst({
           where: {
-            OR: [
-              { userName },
-              ...(usuarioIdSapi !== null
-                ? [{ usuarioIdSapi }]
-                : []),
-            ],
+            OR: conditions,
           },
           select: {
             id: true,
@@ -451,7 +347,7 @@ export async function POST(request: NextRequest) {
               create: {
                 tipoMovimiento: 'IMPORTACIÓN',
                 descripcion:
-                  'Usuario actualizado desde el archivo Excel.',
+                  'Accesos actualizados desde el archivo Excel.',
                 realizadoPor: auth.actor,
               },
             },
@@ -463,13 +359,12 @@ export async function POST(request: NextRequest) {
         await prisma.sapiAccess.create({
           data: {
             ...data,
-            userName,
 
             movimientos: {
               create: {
                 tipoMovimiento: 'IMPORTACIÓN',
                 descripcion:
-                  'Usuario creado desde el archivo Excel.',
+                  'Accesos creados desde el archivo Excel.',
                 realizadoPor: auth.actor,
               },
             },
@@ -511,7 +406,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       {
-        error: 'No fue posible importar el Excel.',
+        error:
+          'No fue posible importar el Excel.',
+
         detalle:
           error instanceof Error
             ? error.message
